@@ -2,57 +2,52 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
+#include "main.h"
+#include "./components/UI.c"
 
 
-//Gör sedan en algorithm där datorn får en högre procent chans att välja ett visst föremål beroende på var player väljer
 
-/* global params */
-struct playerStruct {
-    int id;
-    int points;
-    char *name;
-    bool turn;
-    int weapon;
-    char **weapons;
-  } *playerOne, *playerTwo;
-
-
-/* Function Declarations */
-WINDOW *drawGameUI();
-void createPlayers(int id, WINDOW *gamearea, char *playerName, struct playerStruct *playerNow);
-WINDOW *createWeapons(struct playerStruct *playerNow, WINDOW *gamearea);
-void weaponSelector(WINDOW *weaponsWin, struct playerStruct *playerNow);
+//Gör sedan en algorithm där datorn får en högre procent chans att välja ett visst föremål beroende på var player väljer under tid
 
 /* Functions */
 
 int main() {
+  //Initiate random numbers
+  srand(time(NULL));
+
   WINDOW *gamearea;
-  WINDOW *weaponsWinYou;
-  WINDOW *weaponsWinComputer;
+  WINDOW *weaponsWinOne;
+  WINDOW *weaponsWinTwo;
 
+  //Initializing params
   initscr();
-
   cbreak();
   noecho();
-
+  start_color();
+  init_pair(10, COLOR_WHITE, COLOR_BLACK);
+  bkgd(COLOR_PAIR(10));
+  curs_set(0);
   wborder(stdscr, ACS_VLINE, ACS_VLINE, ACS_HLINE, ACS_HLINE, ACS_ULCORNER, ACS_URCORNER, ACS_LLCORNER, ACS_LRCORNER);
   refresh();
-  gamearea = drawGameUI();
 
+  
+  gamearea = drawGameUI();
   
   playerOne = (struct playerStruct *)malloc(sizeof(struct playerStruct));
   playerTwo = (struct playerStruct *)malloc(sizeof(struct playerStruct));
 
-  createPlayers(1, gamearea, "You", playerOne);
-  createPlayers(2, gamearea, "Computer", playerTwo);
+  createPlayers(1, gamearea, "PlayerOne", playerOne);
+  createPlayers(2, gamearea, "PlayerTwo", playerTwo);
 
-  weaponsWinYou = createWeapons(playerOne, gamearea);
-  weaponsWinComputer = createWeapons(playerTwo, gamearea);
+  weaponsWinOne = createWeapons(playerOne, gamearea);
+  weaponsWinTwo = createWeapons(playerTwo, gamearea);
   
   //Initiate weapons on screen
-  weaponSelector(weaponsWinYou, playerOne);
-  weaponSelector(weaponsWinComputer, playerTwo);
+  weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
+  weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
 
+  gameLoop(weaponsWinOne, weaponsWinTwo);
   // printw("%s",playerOne->weapons[1]);
 
   getch();
@@ -62,26 +57,12 @@ int main() {
   return 0;
 }
 
-WINDOW *drawGameUI() {
-  WINDOW *gamearea;
-  int stdX, stdY, startX, startY;
-  getmaxyx(stdscr, stdY, stdX);
-
-  startX = ((stdX - (stdX * 0.8)) / 2);
-  startY = ((stdY - (stdY * 0.8)) / 2);
-  
-  gamearea = newwin(stdY * 0.8, stdX * 0.8, startY, startX);
-  wborder(gamearea, ACS_DIAMOND, ACS_DIAMOND, ACS_DIAMOND, ACS_DIAMOND, ACS_DIAMOND, ACS_DIAMOND, ACS_DIAMOND, ACS_DIAMOND);
-  wrefresh(gamearea);
-
-  return gamearea;
-}
-
 void createPlayers(int id, WINDOW *gamearea, char *playerName, struct playerStruct *playerNow) {
   playerNow->id = id;
   playerNow->points = 0;
   playerNow->name = playerName;
   playerNow->turn = false;
+  playerNow->ai = false;
   playerNow->weapon = 0;
 
   int gWinX, gWinY;
@@ -102,8 +83,6 @@ void createPlayers(int id, WINDOW *gamearea, char *playerName, struct playerStru
     wattroff(gamearea, COLOR_PAIR(2));
   }
 
-
-
   wrefresh(gamearea);
 }
 
@@ -112,9 +91,8 @@ WINDOW *createWeapons(struct playerStruct *playerNow, WINDOW *gamearea) {
   WINDOW *weaponsWin;
   int startX, startY, width, height;
 
-
   getmaxyx(gamearea, startY, startX);
-  height = startY * 0.2;
+  height = startY * 0.25;
   width = startX * 0.5;
 
   static char *weapons[] = {
@@ -132,7 +110,7 @@ WINDOW *createWeapons(struct playerStruct *playerNow, WINDOW *gamearea) {
   } else {
     wattron(gamearea, COLOR_PAIR(2));
     weaponsWin = derwin(gamearea, height, width, 3, (startX / 2) - width / 2);
-    wattroff(gamearea, COLOR_PAIR(1));
+    wattroff(gamearea, COLOR_PAIR(2));
   }
 
   wborder(weaponsWin, '*', '*', '*', '*', '*', '*', '*', '*');
@@ -142,16 +120,95 @@ WINDOW *createWeapons(struct playerStruct *playerNow, WINDOW *gamearea) {
 }
 
 
-void weaponSelector(WINDOW *weaponsWin, struct playerStruct *playerNow) {
+void weaponSelector(WINDOW *weaponsWin, struct playerStruct *playerNow, int selectedWeapon) {
   int placeX, placeY, height, width;
-  placeX = 4;
+  placeX = 4; 
 
+  wattrset(weaponsWin, A_NORMAL);
   getmaxyx(weaponsWin, height, width);
-
+  
   for(int i = 0; i < 3; i++) {
     int len = strlen(playerNow->weapons[i]);
-    mvwprintw(weaponsWin, 2, placeX, "%s", playerNow->weapons[i]);
+    if(i == selectedWeapon && playerNow->turn == true) {
+      wattrset(weaponsWin, A_BLINK);
+      mvwprintw(weaponsWin, 3, placeX, "%s", playerNow->weapons[i]);
+      wattroff(weaponsWin, A_BLINK);
+    } else {
+      mvwprintw(weaponsWin, 3, placeX, "%s", playerNow->weapons[i]);
+    }
+
     wrefresh(weaponsWin);
     placeX += (width / 3) - len / 2;
+  }
+}
+
+void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo) {
+  int whoStarts, ch;
+  whoStarts = 0;
+
+  while(whoStarts != 1 && whoStarts != 2) {
+    whoStarts = rand() % 10;
+    if(whoStarts == 1) {
+      playerOne->turn = true;
+      keypad(weaponsWinOne, TRUE);
+    } else if(whoStarts == 2) {
+      playerTwo->turn = true;
+      keypad(weaponsWinTwo, TRUE);
+    }
+  }
+
+  weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
+  weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
+
+  while(1) {
+    if(playerOne->turn == true && playerOne->ai == false) {
+      ch = wgetch(weaponsWinOne);
+      switch(ch) {
+        case KEY_LEFT: 
+          if(playerOne->weapon == 0) {
+            playerOne->weapon = 2;
+            weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
+          }
+          else {
+            playerOne->weapon--;
+            weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
+          }
+          break;
+        case KEY_RIGHT:
+          if(playerOne->weapon == 2) {
+            playerOne->weapon = 0;
+            weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
+          }
+          else {
+            playerOne->weapon++;
+            weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
+          }
+          break;
+      }
+    } else if (playerTwo->turn == true && playerTwo->ai == false) {
+      ch = wgetch(weaponsWinTwo);
+      switch(ch) {
+        case KEY_LEFT: 
+          if(playerTwo->weapon == 0) {
+            playerTwo->weapon = 2;
+            weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
+          }
+          else {
+            playerTwo->weapon--;
+            weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
+          }
+          break;
+        case KEY_RIGHT:
+          if(playerTwo->weapon == 2) {
+            playerTwo->weapon = 0;
+            weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
+          }
+          else {
+            playerTwo->weapon++;
+            weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
+          }
+          break;
+      }
+    }
   }
 }
