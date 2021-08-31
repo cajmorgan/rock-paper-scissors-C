@@ -48,7 +48,6 @@ int main() {
   weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
 
   gameLoop(weaponsWinOne, weaponsWinTwo);
-  // printw("%s",playerOne->weapons[1]);
 
   getch();
 
@@ -63,6 +62,7 @@ void createPlayers(int id, WINDOW *gamearea, char *playerName, struct playerStru
   playerNow->name = playerName;
   playerNow->turn = false;
   playerNow->ai = false;
+  playerNow->isReady = false;
   playerNow->weapon = 0;
 
   int gWinX, gWinY;
@@ -168,7 +168,7 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo) {
           if(playerOne->weapon == 0) {
             playerOne->weapon = 2;
             weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
-          }
+          } 
           else {
             playerOne->weapon--;
             weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
@@ -183,6 +183,17 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo) {
             playerOne->weapon++;
             weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
           }
+          break;
+        case ' ':
+          keypad(weaponsWinOne, FALSE);
+          playerOne->turn = false;
+          playerOne->isReady = true;
+          if(playerTwo->isReady == false) {
+            playerTwo->turn = true;
+            keypad(weaponsWinTwo, TRUE);
+          } 
+          weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
+          weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
           break;
       }
     } else if (playerTwo->turn == true && playerTwo->ai == false) {
@@ -208,7 +219,22 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo) {
             weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
           }
           break;
+        case ' ':
+          keypad(weaponsWinTwo, FALSE);
+          playerTwo->turn = false;
+          playerTwo->isReady = true;
+          if(playerOne->isReady == false) {
+            playerOne->turn = true;
+            keypad(weaponsWinOne, TRUE);
+          }
+          weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
+          weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
+          break;
       }
+    }
+
+    if(playerOne->isReady == true && playerTwo->isReady == true) {
+      break;
     }
   }
 }

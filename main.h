@@ -5,6 +5,7 @@ struct playerStruct {
     int points;
     char *name;
     bool turn;
+    bool isReady;
     bool ai;
     int weapon;
     char **weapons;
