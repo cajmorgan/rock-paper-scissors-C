@@ -33,7 +33,11 @@ int main() {
 
   
   gamearea = drawGameUI();
-  
+
+  //initiate game text
+  // int msgY, msgX, msgLen;
+  // getmaxyx(stdscr, msgY, msgX);  
+
   playerOne = (struct playerStruct *)malloc(sizeof(struct playerStruct));
   playerTwo = (struct playerStruct *)malloc(sizeof(struct playerStruct));
 
@@ -42,12 +46,13 @@ int main() {
 
   weaponsWinOne = createWeapons(playerOne, gamearea);
   weaponsWinTwo = createWeapons(playerTwo, gamearea);
-  
-  //Initiate weapons on screen
-  weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
-  weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
 
-  gameLoop(weaponsWinOne, weaponsWinTwo);
+  //Initiate weapons on screen
+  weaponSelector(weaponsWinOne, playerOne, playerOne->weapon, gamearea);
+  weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
+
+  gameLoop(weaponsWinOne, weaponsWinTwo, gamearea);
+  
 
   getch();
 
@@ -120,10 +125,10 @@ WINDOW *createWeapons(struct playerStruct *playerNow, WINDOW *gamearea) {
 }
 
 
-void weaponSelector(WINDOW *weaponsWin, struct playerStruct *playerNow, int selectedWeapon) {
-  int placeX, placeY, height, width;
+void weaponSelector(WINDOW *weaponsWin, struct playerStruct *playerNow, int selectedWeapon, WINDOW *gamearea) {
+  int placeX, placeY, height, width, msgY, msgX, msgLen;
   placeX = 4; 
-
+  
   wattrset(weaponsWin, A_NORMAL);
   getmaxyx(weaponsWin, height, width);
   
@@ -140,10 +145,12 @@ void weaponSelector(WINDOW *weaponsWin, struct playerStruct *playerNow, int sele
     wrefresh(weaponsWin);
     placeX += (width / 3) - len / 2;
   }
+
 }
 
-void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo) {
-  int whoStarts, ch;
+void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea) {
+  int whoStarts, ch, msgLen;
+  char turnCat[] = "'s turn";
   whoStarts = 0;
 
   while(whoStarts != 1 && whoStarts != 2) {
@@ -157,31 +164,38 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo) {
     }
   }
 
-  weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
-  weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
+  weaponSelector(weaponsWinOne, playerOne, playerOne->weapon, gamearea);
+  weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
 
   while(1) {
     if(playerOne->turn == true && playerOne->ai == false) {
+      //Upd msg playerOne
+      msgLen = strlen(playerOne->name) + (sizeof(turnCat) / sizeof(char)) + 1;
+      char turnMsg[msgLen];
+      strcpy(turnMsg, playerOne->name);
+      strcat(turnMsg, turnCat);
+      updateGameMsg(gamearea, turnMsg);
+
       ch = wgetch(weaponsWinOne);
       switch(ch) {
         case KEY_LEFT: 
           if(playerOne->weapon == 0) {
             playerOne->weapon = 2;
-            weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
+            weaponSelector(weaponsWinOne, playerOne, playerOne->weapon, gamearea);
           } 
           else {
             playerOne->weapon--;
-            weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
+            weaponSelector(weaponsWinOne, playerOne, playerOne->weapon, gamearea);
           }
           break;
         case KEY_RIGHT:
           if(playerOne->weapon == 2) {
             playerOne->weapon = 0;
-            weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
+            weaponSelector(weaponsWinOne, playerOne, playerOne->weapon, gamearea);
           }
           else {
             playerOne->weapon++;
-            weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
+            weaponSelector(weaponsWinOne, playerOne, playerOne->weapon, gamearea);
           }
           break;
         case ' ':
@@ -192,31 +206,38 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo) {
             playerTwo->turn = true;
             keypad(weaponsWinTwo, TRUE);
           } 
-          weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
-          weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
+          weaponSelector(weaponsWinOne, playerOne, playerOne->weapon, gamearea);
+          weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
           break;
       }
     } else if (playerTwo->turn == true && playerTwo->ai == false) {
+      //Upd msg playerTwo
+      msgLen = strlen(playerTwo->name) + (sizeof(turnCat) / sizeof(char)) + 1;
+      char turnMsg[msgLen];
+      strcpy(turnMsg, playerTwo->name);
+      strcat(turnMsg, turnCat);
+      updateGameMsg(gamearea, turnMsg);
+
       ch = wgetch(weaponsWinTwo);
       switch(ch) {
         case KEY_LEFT: 
           if(playerTwo->weapon == 0) {
             playerTwo->weapon = 2;
-            weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
+            weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
           }
           else {
             playerTwo->weapon--;
-            weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
+            weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
           }
           break;
         case KEY_RIGHT:
           if(playerTwo->weapon == 2) {
             playerTwo->weapon = 0;
-            weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
+            weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
           }
           else {
             playerTwo->weapon++;
-            weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
+            weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
           }
           break;
         case ' ':
@@ -227,14 +248,62 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo) {
             playerOne->turn = true;
             keypad(weaponsWinOne, TRUE);
           }
-          weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon);
-          weaponSelector(weaponsWinOne, playerOne, playerOne->weapon);
+          weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
+          weaponSelector(weaponsWinOne, playerOne, playerOne->weapon, gamearea);
           break;
       }
     }
 
     if(playerOne->isReady == true && playerTwo->isReady == true) {
+      playRound(gamearea);
       break;
     }
   }
+}
+
+void playRound(WINDOW *gamearea) {
+  int randNext;
+  playerOne->isReady = false;
+  playerTwo->isReady = false;
+
+  updateGameMsg(gamearea, "Playerzzzzz");
+  //Countdown from 3 for some anticipation, put function in a new file
+
+  if((playerOne->weapon == 0 && playerTwo->weapon == 0) 
+  || (playerOne->weapon == 1 && playerTwo->weapon == 1) 
+  || (playerOne->weapon == 2 && playerTwo->weapon == 2)) {
+    //Even
+    randNext = rand() % 2;
+    if(randNext == 0) 
+      playerOne->turn = true;
+    else
+      playerTwo->turn = true;
+
+    //update message win, create a timer function delay.
+  } else if (playerOne->weapon == 0 && playerTwo->weapon == 1) {
+    playerTwo->points += 1;
+    playerTwo->turn = true;
+    //update message win, create a timer function delay.
+  } else if (playerOne->weapon == 0 && playerTwo->weapon == 2) {
+    playerOne->points += 1;
+    playerOne->turn = true;
+    //update message win, create a timer function delay.
+  } else if (playerOne->weapon == 1 && playerTwo->weapon == 0) {
+    playerOne->points += 1;
+    playerOne->turn = true;
+  } else if (playerOne->weapon == 1 && playerTwo->weapon == 2) {
+    playerTwo->points += 1;
+    playerTwo->turn = true;
+  } else if (playerOne->weapon == 2 && playerTwo->weapon == 0) {
+    playerTwo->points += 1;
+    playerTwo->turn = true;
+  } else if (playerOne->weapon == 2 && playerTwo->weapon == 1) {
+    playerOne->points += 1;
+    playerOne->turn = true;
+  }
+
+}
+
+void scoreCount() {
+
 }

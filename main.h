@@ -12,8 +12,8 @@ struct playerStruct {
   } *playerOne, *playerTwo;
 
 
-
 void createPlayers(int id, WINDOW *gamearea, char *playerName, struct playerStruct *playerNow);
 WINDOW *createWeapons(struct playerStruct *playerNow, WINDOW *gamearea);
-void weaponSelector(WINDOW *weaponsWin, struct playerStruct *playerNow, int selectedWeapon);
-void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo);
+void weaponSelector(WINDOW *weaponsWin, struct playerStruct *playerNow, int selectedWeapon, WINDOW *gamearea);
+void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea);
+void playRound(WINDOW *gamearea);
