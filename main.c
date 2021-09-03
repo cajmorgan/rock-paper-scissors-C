@@ -47,6 +47,9 @@ int main() {
   weaponsWinOne = createWeapons(playerOne, gamearea);
   weaponsWinTwo = createWeapons(playerTwo, gamearea);
 
+  scoreCount(gamearea, playerOne);
+  scoreCount(gamearea, playerTwo);
+
   //Initiate weapons on screen
   weaponSelector(weaponsWinOne, playerOne, playerOne->weapon, gamearea);
   weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
@@ -135,9 +138,9 @@ void weaponSelector(WINDOW *weaponsWin, struct playerStruct *playerNow, int sele
   for(int i = 0; i < 3; i++) {
     int len = strlen(playerNow->weapons[i]);
     if(i == selectedWeapon && playerNow->turn == true) {
-      wattrset(weaponsWin, A_BLINK);
+      wattrset(weaponsWin, A_UNDERLINE);
       mvwprintw(weaponsWin, 3, placeX, "%s", playerNow->weapons[i]);
-      wattroff(weaponsWin, A_BLINK);
+      wattroff(weaponsWin, A_UNDERLINE);
     } else {
       mvwprintw(weaponsWin, 3, placeX, "%s", playerNow->weapons[i]);
     }
@@ -157,10 +160,8 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea) {
     whoStarts = rand() % 10;
     if(whoStarts == 1) {
       playerOne->turn = true;
-      keypad(weaponsWinOne, TRUE);
     } else if(whoStarts == 2) {
       playerTwo->turn = true;
-      keypad(weaponsWinTwo, TRUE);
     }
   }
 
@@ -169,6 +170,7 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea) {
 
   while(1) {
     if(playerOne->turn == true && playerOne->ai == false) {
+      keypad(weaponsWinOne, TRUE);
       //Upd msg playerOne
       msgLen = strlen(playerOne->name) + (sizeof(turnCat) / sizeof(char)) + 1;
       char turnMsg[msgLen];
@@ -211,6 +213,7 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea) {
           break;
       }
     } else if (playerTwo->turn == true && playerTwo->ai == false) {
+      keypad(weaponsWinTwo, TRUE);
       //Upd msg playerTwo
       msgLen = strlen(playerTwo->name) + (sizeof(turnCat) / sizeof(char)) + 1;
       char turnMsg[msgLen];
@@ -253,11 +256,13 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea) {
           break;
       }
     }
-
+    
     if(playerOne->isReady == true && playerTwo->isReady == true) {
       playRound(gamearea);
-      break;
-    }
+      getch();
+      weaponSelector(weaponsWinOne, playerOne, playerOne->weapon, gamearea);
+      weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
+    } 
   }
 }
 
@@ -266,44 +271,52 @@ void playRound(WINDOW *gamearea) {
   playerOne->isReady = false;
   playerTwo->isReady = false;
 
-  updateGameMsg(gamearea, "Playerzzzzz");
   //Countdown from 3 for some anticipation, put function in a new file
 
   if((playerOne->weapon == 0 && playerTwo->weapon == 0) 
   || (playerOne->weapon == 1 && playerTwo->weapon == 1) 
   || (playerOne->weapon == 2 && playerTwo->weapon == 2)) {
-    //Even
+    updateGameMsg(gamearea, "     It's a tie!     ");
     randNext = rand() % 2;
     if(randNext == 0) 
       playerOne->turn = true;
     else
       playerTwo->turn = true;
-
     //update message win, create a timer function delay.
   } else if (playerOne->weapon == 0 && playerTwo->weapon == 1) {
+    updateGameMsg(gamearea, "     PlayerTwo Wins     ");
     playerTwo->points += 1;
+    scoreCount(gamearea, playerTwo);
     playerTwo->turn = true;
     //update message win, create a timer function delay.
   } else if (playerOne->weapon == 0 && playerTwo->weapon == 2) {
+    updateGameMsg(gamearea, "     PlayerOne Wins     ");
     playerOne->points += 1;
+    scoreCount(gamearea, playerOne);
     playerOne->turn = true;
     //update message win, create a timer function delay.
   } else if (playerOne->weapon == 1 && playerTwo->weapon == 0) {
+    updateGameMsg(gamearea, "     PlayerOne Wins     ");
     playerOne->points += 1;
+    scoreCount(gamearea, playerOne);
     playerOne->turn = true;
   } else if (playerOne->weapon == 1 && playerTwo->weapon == 2) {
+    updateGameMsg(gamearea, "     PlayerTwo Wins     ");
     playerTwo->points += 1;
+    scoreCount(gamearea, playerTwo);
     playerTwo->turn = true;
   } else if (playerOne->weapon == 2 && playerTwo->weapon == 0) {
+    updateGameMsg(gamearea, "     PlayerTwo Wins     ");
     playerTwo->points += 1;
+    scoreCount(gamearea, playerTwo);
     playerTwo->turn = true;
   } else if (playerOne->weapon == 2 && playerTwo->weapon == 1) {
+    updateGameMsg(gamearea, "     PlayerOne Wins     ");
     playerOne->points += 1;
+    scoreCount(gamearea, playerOne);
     playerOne->turn = true;
   }
+  
 
 }
 
-void scoreCount() {
-
-}

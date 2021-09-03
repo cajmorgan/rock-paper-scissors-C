@@ -1,4 +1,5 @@
 #include <curses.h> 
+#include <time.h>
 #include "UI.h"
 
 WINDOW *drawGameUI() {
@@ -27,5 +28,19 @@ void updateGameMsg(WINDOW *gamearea, char *gameMsg) {
   msgLen = strlen(gameMsg);
   mvwprintw(gamearea, msgY / 2, (msgX / 2) - msgLen / 2, "%s", gameMsg);
   wrefresh(gamearea);
+
+}
+
+void scoreCount(WINDOW *gamearea, struct playerStruct *playerNow) {
+  if(playerNow->id == 1) {
+    mvwprintw(gamearea, 2, 2, "%d", playerNow->points);
+  } else if (playerNow->id == 2) {
+    mvwprintw(gamearea, 0, 2, "%d", playerNow->points);
+  }
+  wrefresh(gamearea);
+
+}
+
+void countdownTimer() {
 
 }
