@@ -1,5 +1,6 @@
 #include <curses.h> 
 #include <time.h>
+#include <string.h>
 #include "UI.h"
 
 WINDOW *drawGameUI() {
@@ -32,15 +33,33 @@ void updateGameMsg(WINDOW *gamearea, char *gameMsg) {
 }
 
 void scoreCount(WINDOW *gamearea, struct playerStruct *playerNow) {
+  int x, y;
+
+  getmaxyx(gamearea, y, x);
+
   if(playerNow->id == 1) {
-    mvwprintw(gamearea, 2, 2, "%d", playerNow->points);
+    wattron(gamearea, COLOR_PAIR(1));
+    mvwprintw(gamearea, (y / 2) - 2, (x / 2) - 3, "%d", playerNow->points);
+    wattroff(gamearea, COLOR_PAIR(1));
   } else if (playerNow->id == 2) {
-    mvwprintw(gamearea, 0, 2, "%d", playerNow->points);
+    wattron(gamearea, COLOR_PAIR(2));
+    mvwprintw(gamearea, (y / 2) - 2, (x / 2) + 1, "%d", playerNow->points);
+    wattroff(gamearea, COLOR_PAIR(1));
   }
   wrefresh(gamearea);
 
 }
 
-void countdownTimer() {
+void timerFunc(int seconds) {
+  seconds = seconds * 400000000;
+  clock_t start = clock();
+  volatile unsigned sink;
 
+  for(size_t i = 0; i < seconds; i++) {
+    sink++;
+  }
+
+  clock_t end = clock();
+
+  // double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 }
