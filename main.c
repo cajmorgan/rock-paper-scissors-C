@@ -6,6 +6,7 @@
 #include <time.h>
 #include "main.h"
 #include "./components/UI.c"
+#include "./components/AI.c"
 
 
 
@@ -339,6 +340,8 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea, in
           break;
       }
     } else if (playerTwo->turn == true && playerTwo->ai == true) {
+      node_t *AIList = createAIList();
+
       char turnMsg[100];
       char spaces[] = "          ";
       strcpy(turnMsg, spaces);
@@ -475,11 +478,3 @@ void playRound(WINDOW *gamearea) {
 }
 
 
-int AIplay() {
-  int random;
-
-  random = rand() % 3;
-
-  return random;
-
-}

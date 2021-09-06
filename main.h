@@ -11,6 +11,8 @@ struct playerStruct {
     char **weapons;
   } *playerOne, *playerTwo;
 
+ 
+
 
 void createPlayers(int id, WINDOW *gamearea, char *playerName, struct playerStruct *playerNow);
 WINDOW *createWeapons(struct playerStruct *playerNow, WINDOW *gamearea);
