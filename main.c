@@ -248,9 +248,8 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea, in
   weaponSelector(weaponsWinOne, playerOne, playerOne->weapon, gamearea);
   weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
   node_t *AIList = createAIList();
-
+  
   while(1) {
-
     if(playerOne->turn == true && playerOne->ai == false) {
       keypad(weaponsWinOne, TRUE);
       //Upd msg playerOne
@@ -433,7 +432,7 @@ void playRound(WINDOW *gamearea, node_t *AIList) {
     scoreCount(gamearea, playerOne);
     playerOne->turn = true;
     if(playerTwo->ai == true) {
-      lose(AIList, playerTwo->weapon);
+      AIList = lose(&AIList, playerTwo->weapon);
     }
     //update message win, create a timer function delay.
   } else if (playerOne->weapon == 1 && playerTwo->weapon == 0) {
@@ -446,7 +445,7 @@ void playRound(WINDOW *gamearea, node_t *AIList) {
     scoreCount(gamearea, playerOne);
     playerOne->turn = true;
     if(playerTwo->ai == true) {
-      lose(AIList, playerTwo->weapon);
+      AIList = lose(&AIList, playerTwo->weapon);
     }
   } else if (playerOne->weapon == 1 && playerTwo->weapon == 2) {
     strcpy(winMsg, spaces);
@@ -486,7 +485,7 @@ void playRound(WINDOW *gamearea, node_t *AIList) {
     scoreCount(gamearea, playerOne);
     playerOne->turn = true;
     if(playerTwo->ai == true) {
-      lose(AIList, playerTwo->weapon);
+     AIList = lose(&AIList, playerTwo->weapon);
     }
   }
   

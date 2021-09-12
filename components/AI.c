@@ -3,35 +3,62 @@
 #include "AI.h"
 
 int AIplay(node_t *base) {
-
-  shuffle(&base);
-  shuffle(&base);
   int playMove;
-  playMove = base->next->next->val;
-  // print_list(base);
+  node_t *current;
+  current = base;
+  shuffle(&base);
+  while(current->next != NULL) {
+    current = current->next;
+  } 
+  playMove = current->val;
   return playMove;
 }
 
 void win(node_t *base, int winMove) {
   push(base, winMove);
-  shuffle(&base);
 }
 
-void lose(node_t *base, int loseMove) {
+node_t *lose(node_t **base, int loseMove) {
+  node_t *current;
+  current = *base;
+
   if(loseMove == 0) {
-    push(base, 2);
-    shuffle(&base);
+    push(*base, 2);
   } else if (loseMove == 1) {
-    push(base, 0);
-    shuffle(&base);
+    push(*base, 0);
   } else if (loseMove == 2) {
-    push(base, 1);
-    shuffle(&base);
+    push(*base, 1);
   }
-  if(base->next->next != NULL) {
-    spliceByValue(&base, loseMove);
-    shuffle(&base);
+
+  int rocks = 0, papers = 0, scissors = 0;
+  //Check how many of them left
+  while(current != NULL) {
+    switch(current->val) {
+      case 0:
+        rocks += 1;
+        break;
+      case 1:
+        papers += 1;
+        break;
+      case 2:
+        scissors += 1;
+        break;
+    }
+    current = current->next;
   }
+  // printf("\nRocks %d\n", rocks);
+  // printf("\nPapers %d\n", papers);
+  // printf("\nScissrs %d\n", scissors);
+
+  if(loseMove == 0 && rocks > 1) {
+    spliceByValue(base, loseMove);
+  } else if(loseMove == 1 && papers > 1) {
+    spliceByValue(base, loseMove);
+  } else if(loseMove == 2 && scissors > 1) {
+    spliceByValue(base, loseMove);
+  }
+
+  return *base;
 }
 
 node_t *createAIList() {

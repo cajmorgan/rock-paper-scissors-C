@@ -6,9 +6,9 @@
 			"label": "C/C++: clang build active file",
 			"command": "/usr/bin/clang",
 			"args": [
+				"-lncurses",
 				"-g",
 				"${file}",
-				"-lncurses",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}"
 			],

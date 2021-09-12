@@ -18,4 +18,3 @@ void createPlayers(int id, WINDOW *gamearea, char *playerName, struct playerStru
 WINDOW *createWeapons(struct playerStruct *playerNow, WINDOW *gamearea);
 void weaponSelector(WINDOW *weaponsWin, struct playerStruct *playerNow, int selectedWeapon, WINDOW *gamearea);
 void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea, int numberOfRounds);
-int AIplay();

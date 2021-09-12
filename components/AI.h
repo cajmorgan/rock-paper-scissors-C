@@ -9,5 +9,5 @@
   void print_list(node_t *base);
   void shuffle(node_t **base);
   void win(node_t *base, int winMove);
-  void lose(node_t *base, int loseMove);
+  node_t *lose(node_t **base, int loseMove);
   int spliceByValue(node_t **base, int searchVal); 
