@@ -224,6 +224,7 @@ void weaponSelector(WINDOW *weaponsWin, struct playerStruct *playerNow, int sele
   }
 
 }
+void playRound(WINDOW *gamearea, node_t *AIList);
 
 void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea, int numberOfRounds) {
   int whoStarts, ch, msgLen;
@@ -246,8 +247,10 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea, in
 
   weaponSelector(weaponsWinOne, playerOne, playerOne->weapon, gamearea);
   weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
+  node_t *AIList = createAIList();
 
   while(1) {
+
     if(playerOne->turn == true && playerOne->ai == false) {
       keypad(weaponsWinOne, TRUE);
       //Upd msg playerOne
@@ -340,8 +343,6 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea, in
           break;
       }
     } else if (playerTwo->turn == true && playerTwo->ai == true) {
-      node_t *AIList = createAIList();
-
       char turnMsg[100];
       char spaces[] = "          ";
       strcpy(turnMsg, spaces);
@@ -349,15 +350,15 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea, in
       strcat(turnMsg, turnCat);
       strcat(turnMsg, spaces);
       updateGameMsg(gamearea, turnMsg);
-      playerTwo->weapon = AIplay();
+      // playerTwo->weapon = AIplay(AIList);
+      // timerFunc(1);
+      // playerTwo->weapon = AIplay(AIList);
+      // weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
+      // timerFunc(1);
+      // playerTwo->weapon = AIplay(AIList);
+      // weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
       timerFunc(1);
-      playerTwo->weapon = AIplay();
-      weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
-      timerFunc(1);
-      playerTwo->weapon = AIplay();
-      weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
-      timerFunc(1);
-      playerTwo->weapon = AIplay();
+      playerTwo->weapon = AIplay(AIList);
       weaponSelector(weaponsWinTwo, playerTwo, playerTwo->weapon, gamearea);
       timerFunc(1);
 
@@ -370,7 +371,7 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea, in
     }
     
     if(playerOne->isReady == true && playerTwo->isReady == true) {
-      playRound(gamearea);
+      playRound(gamearea, AIList);
       numberOfRounds -= 1;
       mvprintw(1, 1, "  %d  ", numberOfRounds);
       refresh();
@@ -386,7 +387,7 @@ void gameLoop(WINDOW *weaponsWinOne, WINDOW *weaponsWinTwo, WINDOW *gamearea, in
   }
 }
 
-void playRound(WINDOW *gamearea) {
+void playRound(WINDOW *gamearea, node_t *AIList) {
   int randNext;
   playerOne->isReady = false;
   playerTwo->isReady = false;
@@ -417,8 +418,10 @@ void playRound(WINDOW *gamearea) {
     scoreCount(gamearea, playerTwo);
     if(playerTwo->ai == false)
       playerTwo->turn = true;
-    else
+    else {
+      win(AIList, playerTwo->weapon);
       playerOne->turn = true;
+    }
     //update message win, create a timer function delay.
   } else if (playerOne->weapon == 0 && playerTwo->weapon == 2) {
     strcpy(winMsg, spaces);
@@ -429,6 +432,9 @@ void playRound(WINDOW *gamearea) {
     playerOne->points += 1;
     scoreCount(gamearea, playerOne);
     playerOne->turn = true;
+    if(playerTwo->ai == true) {
+      lose(AIList, playerTwo->weapon);
+    }
     //update message win, create a timer function delay.
   } else if (playerOne->weapon == 1 && playerTwo->weapon == 0) {
     strcpy(winMsg, spaces);
@@ -439,6 +445,9 @@ void playRound(WINDOW *gamearea) {
     playerOne->points += 1;
     scoreCount(gamearea, playerOne);
     playerOne->turn = true;
+    if(playerTwo->ai == true) {
+      lose(AIList, playerTwo->weapon);
+    }
   } else if (playerOne->weapon == 1 && playerTwo->weapon == 2) {
     strcpy(winMsg, spaces);
     strcat(winMsg, playerTwo->name);
@@ -449,8 +458,10 @@ void playRound(WINDOW *gamearea) {
     scoreCount(gamearea, playerTwo);
     if(playerTwo->ai == false)
       playerTwo->turn = true;
-    else
+    else {
+      win(AIList, playerTwo->weapon);
       playerOne->turn = true;
+    }
   } else if (playerOne->weapon == 2 && playerTwo->weapon == 0) {
     strcpy(winMsg, spaces);
     strcat(winMsg, playerTwo->name);
@@ -461,8 +472,10 @@ void playRound(WINDOW *gamearea) {
     scoreCount(gamearea, playerTwo);
     if(playerTwo->ai == false)
       playerTwo->turn = true;
-    else
+    else {
+      win(AIList, playerTwo->weapon);
       playerOne->turn = true;
+    }
   } else if (playerOne->weapon == 2 && playerTwo->weapon == 1) {
     strcpy(winMsg, spaces);
     strcat(winMsg, playerOne->name);
@@ -472,6 +485,9 @@ void playRound(WINDOW *gamearea) {
     playerOne->points += 1;
     scoreCount(gamearea, playerOne);
     playerOne->turn = true;
+    if(playerTwo->ai == true) {
+      lose(AIList, playerTwo->weapon);
+    }
   }
   
 
