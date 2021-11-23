@@ -8,10 +8,6 @@
 #include "./components/UI.c"
 #include "./components/AI.c"
 
-
-
-//Gör sedan en algorithm där datorn får en högre procent chans att välja ett visst föremål beroende på var player väljer under tid
-
 /* Functions */
 int main() {
 
